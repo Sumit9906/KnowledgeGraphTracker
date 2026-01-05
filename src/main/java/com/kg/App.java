@@ -8,12 +8,16 @@ import com.kg.git.commit.CommitResolver;
 import com.kg.impact.CallImpactAnalyzer;
 import com.kg.impact.CallsReverseIndex;
 import com.kg.impact.ChangedMethodExtractor;
-import com.kg.impact.ContainsReverseIndex;
-import com.kg.impact.DeclaresReverseIndex;
+// import com.kg.impact.ContainsReverseIndex;
+// import com.kg.impact.DeclaresReverseIndex;
 import com.kg.impact.ImpactPrinter;
 import com.kg.impact.ImpactResult;
-import com.kg.impact.StructuralImpactAnalyzer;
+// import com.kg.impact.StructuralImpactAnalyzer;
 import com.kg.impact.TransitiveCallImpactAnalyzer;
+import com.kg.risk.RiskMetrics;
+import com.kg.risk.RiskPrinter;
+import com.kg.risk.RiskScore;
+import com.kg.risk.RiskScorer;
 import com.kg.snapshot.GraphSnapshotStore;
 import com.kg.snapshot.SnapshotExecutor;
 
@@ -171,8 +175,10 @@ public class App {
                     impact
                 );
 
-
                 ImpactPrinter.print(impact);
+                RiskMetrics metrics = RiskMetrics.fromImpact(impact);
+                RiskScore risk = RiskScorer.score(metrics);
+                RiskPrinter.print(metrics, risk);
                 System.exit(0);
                 return;
             }
