@@ -14,6 +14,10 @@ import com.kg.impact.ImpactPrinter;
 import com.kg.impact.ImpactResult;
 // import com.kg.impact.StructuralImpactAnalyzer;
 import com.kg.impact.TransitiveCallImpactAnalyzer;
+import com.kg.risk.RecommendationEngine;
+import com.kg.risk.RiskExplanation;
+import com.kg.risk.RiskExplanationEngine;
+import com.kg.risk.RiskExplanationPrinter;
 import com.kg.risk.RiskMetrics;
 import com.kg.risk.RiskPrinter;
 import com.kg.risk.RiskScore;
@@ -31,7 +35,7 @@ public class App {
     public static void main(String[] args) {
 
         String repoPath =
-                "C:/Users/divya yadav/PROJECT/KGraph/kg-cli/test-repo";
+                "C:/Users/divya yadav/PROJECT/KGraph/kg-cli/test_repo";
 
         try {
 
@@ -179,6 +183,12 @@ public class App {
                 RiskMetrics metrics = RiskMetrics.fromImpact(impact);
                 RiskScore risk = RiskScorer.score(metrics);
                 RiskPrinter.print(metrics, risk);
+                // ===== Phase 6: Explainability & Recommendation =====
+                RiskExplanation explanation = RiskExplanationEngine.explain(metrics, risk);
+
+                String recommendation = RecommendationEngine.recommend(risk.getLevel());
+
+                RiskExplanationPrinter.print(explanation, recommendation);
                 System.exit(0);
                 return;
             }
