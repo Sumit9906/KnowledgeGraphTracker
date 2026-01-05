@@ -7,6 +7,7 @@ import com.kg.extractor.MethodExtractor;
 import com.kg.git.FileChangeType;
 import com.kg.git.GitDiffAnalyzer;
 import com.kg.graph.GraphStore;
+import com.kg.graph.Node;
 import com.kg.output.GraphSerializer;
 import com.kg.parser.JavaAstParser;
 import com.kg.scanner.RepoScanner;
@@ -22,7 +23,6 @@ public class App {
         String repoPath =
                 "C:/Users/divya yadav/PROJECT/KGraph/kg-cli/test-repo";
 
-        
         GraphStore graph = GraphSerializer.read("output/graph.json");
 
         if (args.length > 0 && args[0].equals("diff")) {
@@ -31,6 +31,7 @@ public class App {
             runFullBuild(repoPath, graph);
         }
 
+        graph.generatedAt = System.currentTimeMillis();
         graph.printSummary();
         GraphSerializer.write(graph, "output/graph.json");
     }
@@ -42,7 +43,8 @@ public class App {
 
         for (File file : files) {
             CompilationUnit cu = JavaAstParser.parse(file);
-            FileExtractor.extract(file, graph);
+
+            FileExtractor.extract(file, cu, graph);
             ClassExtractor.extract(file, cu, graph);
             MethodExtractor.extract(cu, graph);
         }
@@ -54,34 +56,48 @@ public class App {
         Map<String, FileChangeType> changes =
                 GitDiffAnalyzer.getFileChanges(repoPath);
 
-         changes.entrySet()
-               .stream()
-               .sorted(Map.Entry.comparingByKey())
-               .forEach(entry -> {
+        // 🔹 deterministic order (P1.1)
+        for (Map.Entry<String, FileChangeType> entry :
+                changes.entrySet()
+                       .stream()
+                       .sorted(Map.Entry.comparingByKey())
+                       .toList()) {
 
-                   try {
-                       File file = new File(repoPath, entry.getKey());
-                       String fileId = file.getCanonicalPath();
+            File file = new File(repoPath, entry.getKey());
+            String fileId = file.getCanonicalPath();
 
-                       switch (entry.getValue()) {
+            // 🔹 DELETE
+            if (entry.getValue() == FileChangeType.DELETED) {
+                graph.removeNodesByFile(fileId);
+                continue;
+            }
 
-                           case ADDED:
-                           case MODIFIED:
-                               graph.removeNodesByFile(fileId);
-                               CompilationUnit cu =
-                                       JavaAstParser.parse(file);
-                               FileExtractor.extract(file, graph);
-                               ClassExtractor.extract(file, cu, graph);
-                               MethodExtractor.extract(cu, graph);
-                               break;
+            // 🔹 ADDED / MODIFIED
+            CompilationUnit cu = JavaAstParser.parse(file);
 
-                           case DELETED:
-                               graph.removeNodesByFile(fileId);
-                               break;
-                       }
-                   } catch (Exception e) {
-                       throw new RuntimeException(e);
-                   }
-               });
+            // compute new structural hash
+            String newHash =
+                    FileExtractor.computeStructuralHash(cu);
+
+            // get existing file node
+            Node existingFileNode = graph.getNodes().stream()
+                    .filter(n -> n.id.equals(fileId))
+                    .findFirst()
+                    .orElse(null);
+
+            // 🔹 P1.3: skip unchanged structure
+            if (existingFileNode != null &&
+                existingFileNode.contentHash != null &&
+                existingFileNode.contentHash.equals(newHash)) {
+                continue;
+            }
+
+            // rebuild graph data for this file
+            graph.removeNodesByFile(fileId);
+
+            FileExtractor.extract(file, cu, graph);
+            ClassExtractor.extract(file, cu, graph);
+            MethodExtractor.extract(cu, graph);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.kg.graph;
 
 public class Node {
+    public String contentHash;
 
     public String id;
     public NodeType type;

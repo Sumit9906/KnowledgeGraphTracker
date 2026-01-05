@@ -4,6 +4,8 @@ import java.util.*;
 
 public class GraphStore {
 
+    public String schemaVersion = "1.0";
+    public long generatedAt = System.currentTimeMillis();
     // ---- JSON-SERIALIZED FIELDS ----
     private List<Node> nodes = new ArrayList<>();
     private List<Edge> edges = new ArrayList<>();
