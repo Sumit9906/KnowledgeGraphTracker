@@ -1,0 +1,48 @@
+{
+  "nodes" : [ {
+    "id" : "C:\\Users\\divya yadav\\PROJECT\\KGraph\\kg-cli\\test-repo\\A.java",
+    "type" : "FILE",
+    "fileId" : "C:\\Users\\divya yadav\\PROJECT\\KGraph\\kg-cli\\test-repo\\A.java"
+  }, {
+    "id" : "default.A",
+    "type" : "CLASS",
+    "fileId" : "C:\\Users\\divya yadav\\PROJECT\\KGraph\\kg-cli\\test-repo\\A.java"
+  }, {
+    "id" : "default.A.a",
+    "type" : "METHOD",
+    "fileId" : "C:\\Users\\divya yadav\\PROJECT\\KGraph\\kg-cli\\test-repo\\A.java"
+  }, {
+    "id" : "default.A.b",
+    "type" : "METHOD",
+    "fileId" : "C:\\Users\\divya yadav\\PROJECT\\KGraph\\kg-cli\\test-repo\\A.java"
+  }, {
+    "id" : "default.A.c",
+    "type" : "METHOD",
+    "fileId" : "C:\\Users\\divya yadav\\PROJECT\\KGraph\\kg-cli\\test-repo\\A.java"
+  } ],
+  "edges" : [ {
+    "from" : "C:\\Users\\divya yadav\\PROJECT\\KGraph\\kg-cli\\test-repo\\A.java",
+    "to" : "default.A",
+    "type" : "CONTAINS"
+  }, {
+    "from" : "default.A",
+    "to" : "default.A.a",
+    "type" : "DECLARES"
+  }, {
+    "from" : "default.A.a",
+    "to" : "default.A.b",
+    "type" : "CALLS"
+  }, {
+    "from" : "default.A.a",
+    "to" : "default.A.c",
+    "type" : "CALLS"
+  }, {
+    "from" : "default.A",
+    "to" : "default.A.b",
+    "type" : "DECLARES"
+  }, {
+    "from" : "default.A",
+    "to" : "default.A.c",
+    "type" : "DECLARES"
+  } ]
+}
