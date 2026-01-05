@@ -54,26 +54,34 @@ public class App {
         Map<String, FileChangeType> changes =
                 GitDiffAnalyzer.getFileChanges(repoPath);
 
-        for (Map.Entry<String, FileChangeType> entry : changes.entrySet()) {
+         changes.entrySet()
+               .stream()
+               .sorted(Map.Entry.comparingByKey())
+               .forEach(entry -> {
 
-            File file = new File(repoPath, entry.getKey());
-            String canonicalPath = file.getCanonicalPath();
+                   try {
+                       File file = new File(repoPath, entry.getKey());
+                       String fileId = file.getCanonicalPath();
 
-            switch (entry.getValue()) {
+                       switch (entry.getValue()) {
 
-                case ADDED:
-                case MODIFIED:
-                    graph.removeNodesByFile(canonicalPath);
-                    CompilationUnit cu = JavaAstParser.parse(file);
-                    FileExtractor.extract(file, graph);
-                    ClassExtractor.extract(file, cu, graph);
-                    MethodExtractor.extract(cu, graph);
-                    break;
+                           case ADDED:
+                           case MODIFIED:
+                               graph.removeNodesByFile(fileId);
+                               CompilationUnit cu =
+                                       JavaAstParser.parse(file);
+                               FileExtractor.extract(file, graph);
+                               ClassExtractor.extract(file, cu, graph);
+                               MethodExtractor.extract(cu, graph);
+                               break;
 
-                case DELETED:
-                    graph.removeNodesByFile(canonicalPath);
-                    break;
-            }
-        }
+                           case DELETED:
+                               graph.removeNodesByFile(fileId);
+                               break;
+                       }
+                   } catch (Exception e) {
+                       throw new RuntimeException(e);
+                   }
+               });
     }
 }
