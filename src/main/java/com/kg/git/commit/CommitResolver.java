@@ -18,11 +18,18 @@ public class CommitResolver {
         }
     }
 
+
+    public static String resolveCommit(String repoPath, String ref)
+            throws Exception {
+        return runGitCommand(repoPath, "git", "rev-parse", ref);
+    }
+
+
     private static String runGitCommand(String repoPath, String... command)
             throws Exception {
 
         ProcessBuilder pb = new ProcessBuilder(command);
-        pb.directory(new File(repoPath)); // 🔴 THIS IS THE KEY FIX
+        pb.directory(new File(repoPath)); // THIS IS THE KEY FIX
         pb.redirectErrorStream(true);
 
         Process p = pb.start();
