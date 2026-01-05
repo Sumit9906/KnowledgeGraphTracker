@@ -6,6 +6,10 @@ public class GraphStore {
 
     public String schemaVersion = "1.0";
     public long generatedAt = System.currentTimeMillis();
+    public String commitHash;
+    public String parentCommitHash;
+    public String buildMode;
+
     // ---- JSON-SERIALIZED FIELDS ----
     private List<Node> nodes = new ArrayList<>();
     private List<Edge> edges = new ArrayList<>();
@@ -38,7 +42,7 @@ public class GraphStore {
     // ---- REMOVAL (PHASE 1) ----
     public void removeNodesByFile(String fileId) {
 
-    // 1️⃣ Collect node IDs that belong to the file
+    // 1️ Collect node IDs that belong to the file
     Set<String> doomedNodeIds = new HashSet<>();
 
     for (Node n : nodes) {
@@ -47,16 +51,16 @@ public class GraphStore {
         }
     }
 
-    // 2️⃣ Remove edges connected to those nodes
+    // 2️ Remove edges connected to those nodes
     edges.removeIf(e ->
             doomedNodeIds.contains(e.from) ||
             doomedNodeIds.contains(e.to)
     );
 
-    // 3️⃣ Remove the nodes themselves
+    // 3️ Remove the nodes themselves
     nodes.removeIf(n -> fileId.equals(n.fileId));
 
-    // 4️⃣ Rebuild indexes
+    // 4️ Rebuild indexes
     rebuildIndexes();
 }
 
